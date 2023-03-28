@@ -15,9 +15,7 @@ function LibrosForm(){
         getAutores()
     }, [])
 
-    useEffect(() => {
-        console.log(autores)
-    }, [autores])
+
 
     async function getAutores(){
         try{
