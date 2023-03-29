@@ -18,12 +18,6 @@ function App(){
                 <Route path="/" element={<Home />} />
                 <Route path="/autores" element={<AutoresCrud />} />
                 <Route path="/libros" element={<LibrosCrud />} />
-                <Route path="/autores/new" element={<AutoresForm />} />
-                <Route path="/autores/edit/:id" element={<AutoresForm />} />
-                <Route path="/autores/delete/:id" element={<AutoresForm del={true} />} />
-                <Route path="/libros/new" element={<LibrosForm />} />
-                <Route path="/libros/edit/:id" element={<LibrosForm />} />
-                <Route path="/libros/delete/:id" element={<LibrosForm del={true} />} />
                 <Route path="*" element={<NotFound />} />
 
             </Routes>
