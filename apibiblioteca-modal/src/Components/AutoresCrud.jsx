@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import { Link } from 'react-router-dom'
 import Menu from './Menu'
 import Tabla from './Tabla'
 import axios from "axios"
@@ -8,6 +7,13 @@ import AutoresForm from './AutoresForm'
 const AutoresCrud = () => {
 
     const[autores, setAutores] = useState()
+    const[id, setId] = useState()
+    const[del, setDel] = useState()
+
+    function configurar(id, del){
+        setId(id)
+        setDel(del)
+    }
 
     useEffect(() =>{
         cargarAutores()
@@ -31,7 +37,7 @@ const AutoresCrud = () => {
         <Menu />
         
         {
-            autores == undefined ?
+            autores === undefined ?
             <div>
                 <div className="spinner-border" role="status">
                     <span className="visually-hidden">Loading...</span>
@@ -39,7 +45,7 @@ const AutoresCrud = () => {
                 <h2>Cargando...</h2>
             </div>
             :
-            <Tabla controlador="autores" lista={autores} cols={["Autor ID", "Nombre", "Apellido", "País de origen"]} />
+            <Tabla evento={configurar} controlador="autores" lista={autores} cols={["Autor ID", "Nombre", "Apellido", "País de origen"]} />
         }
         
 
@@ -51,11 +57,7 @@ const AutoresCrud = () => {
                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
-                <AutoresForm />
-            </div>
-            <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary">Save changes</button>
+                <AutoresForm id={id} del={del} actualizar={cargarAutores} />
             </div>
             </div>
         </div>

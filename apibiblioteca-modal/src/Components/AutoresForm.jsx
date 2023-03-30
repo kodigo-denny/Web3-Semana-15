@@ -1,31 +1,30 @@
 import React, {useEffect, useState} from 'react'
-import Menu from './Menu'
-import { useNavigate, useParams } from 'react-router-dom'
 import axios from "axios"
 
-const AutoresForm = ({del}) => {
+const AutoresForm = ({id, del, actualizar}) => {
 
-    let p = useParams()
-
-    console.log(p.id)
+    if(del !== true)
+            del = false
 
     const[nombre, setNombre] = useState("")
     const[apellido, setApellido] = useState("")
     const[pais, setPais] = useState("")
 
-    const navigate = useNavigate()
-
     useEffect(() => {
-        if(del != true)
-            del = false
+        
 
-        if(p.id != undefined)
+        if(id !== undefined)
             cargarAutor()
-    }, [])
+        else{
+            setNombre("")
+            setApellido("")
+            setPais("")
+        }
+    }, [id])
 
     async function cargarAutor(){
         try{
-            let res = await axios("https://denny2023.azurewebsites.net/api/autores/"+p.id)
+            let res = await axios("https://denny2023.azurewebsites.net/api/autores/"+id)
             let data = await res.data
 
 
@@ -38,7 +37,7 @@ const AutoresForm = ({del}) => {
         catch(error){
             alert(error)
             if(error.response.status === 404)
-                navigate("/autores")
+                document.querySelector("#btnCancelar").click()
         }
     }
 
@@ -53,9 +52,9 @@ const AutoresForm = ({del}) => {
             form.classList.add('was-validated')
         }
         else{
-            if(p.id === undefined)
+            if(id === undefined)
                 guardar()
-            else if(del === false)
+            else if(del !== true)
                 editar()
             else{
                 let respuesta = window.confirm("Esta seguro que desea eliminar?")
@@ -70,18 +69,20 @@ const AutoresForm = ({del}) => {
 
     async function eliminar(){
         try{
-            let res = await axios.delete("https://denny2023.azurewebsites.net/api/autores?id=" + p.id)
+            let res = await axios.delete("https://denny2023.azurewebsites.net/api/autores?id=" + id)
             let data = await res.data
 
             alert(data.message)
 
-            if(data.status === 1)
-                navigate("/autores")
+            if(data.status === 1){
+                document.querySelector("#btnCancelar").click()
+                actualizar()
+            }
         }
         catch(error){
             alert(error)
             if(error.response.status === 404)
-                navigate("/autores")
+                document.querySelector("#btnCancelar").click()
         }
     }
 
@@ -89,7 +90,7 @@ const AutoresForm = ({del}) => {
         try{
             const autor =
             {
-                autorId: p.id,
+                autorId: id,
                 nombre: nombre,
                 apellido: apellido,
                 paisOrigen: pais
@@ -100,12 +101,16 @@ const AutoresForm = ({del}) => {
 
             alert(data.message)
 
-            if(data.status === 1)
-                navigate("/autores")
+            if(data.status === 1){
+                document.querySelector("#btnCancelar").click()
+                actualizar()
+            }
 
         }
         catch(error){
             alert(error)
+            if(error.response.status === 404)
+                document.querySelector("#btnCancelar").click()
         }
     }
 
@@ -123,8 +128,11 @@ const AutoresForm = ({del}) => {
 
             alert(datos.message)
 
-            if(datos.status === 1)
+            if(datos.status === 1){
                 document.querySelector("#btnCancelar").click()
+                actualizar()
+            }
+                
 
         }
         catch(error){
@@ -135,16 +143,18 @@ const AutoresForm = ({del}) => {
     function cancelar(e){
         e.preventDefault()
         e.stopPropagation()
+        let form = document.querySelector("#formulario")
+        form.classList.remove('was-validated')
     }
 
   return (
     <div>
         <form id="formulario" className='needs-validation' noValidate>
             {
-                p.id != undefined ?
+                id !== undefined ?
                 <div className='form-group mb-3'>
                     <label className='form-label'>ID:</label>
-                    <input type="text" value={p.id} readOnly disabled className="form-control" />
+                    <input type="text" value={id} readOnly disabled className="form-control" />
                 </div>
                 :
                 ""
@@ -169,8 +179,8 @@ const AutoresForm = ({del}) => {
                 <div className="valid-feedback">Correcto</div>
                 <div className="invalid-feedback">Complete el campo</div>
             </div>
-            <div className='form-group mb-3'>
-                <input onClick={(e) => enviar(e)} type="submit" className={`btn btn-${p.id === undefined ? "success" : del===true ? "danger" : "primary"}`} value={p.id === undefined ? "Guardar" : del===true ? "Eliminar" : "Editar"} />
+            <div className='modal-footer form-group mb-3'>
+                <input onClick={(e) => enviar(e)} type="submit" className={`btn btn-${id === undefined ? "success" : del===true ? "danger" : "primary"}`} value={id === undefined ? "Guardar" : del===true ? "Eliminar" : "Editar"} />
                 <button id="btnCancelar" data-bs-dismiss="modal" onClick={(e) => cancelar(e)} className='btn btn-warning'>Cancelar</button>
             </div>
         </form>

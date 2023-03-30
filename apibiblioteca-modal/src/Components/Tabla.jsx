@@ -1,7 +1,6 @@
-import React, {useEffect} from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react'
 
-const Tabla = ({cols, controlador, lista}) => {
+const Tabla = ({cols, controlador, lista, evento}) => {
 
     /*
     useEffect(() => {
@@ -16,7 +15,7 @@ const Tabla = ({cols, controlador, lista}) => {
             <thead>
                 <tr>
                     <th>
-                        <button className='btn btn-success' data-bs-toggle="modal" data-bs-target={`#${controlador}Modal`}>Nuevo</button>
+                        <button className='btn btn-success' onClick={() => evento()} data-bs-toggle="modal" data-bs-target={`#${controlador}Modal`}>Nuevo</button>
                     </th>
                     {
                         cols.map((value, index) =>{
@@ -30,8 +29,8 @@ const Tabla = ({cols, controlador, lista}) => {
                     lista.map((value, index) => {
                         return <tr key={index}>
                             <td>
-                                <Link to={`/${controlador}/edit/${Object.values(value)[0]}`} className='btn btn-primary'>Editar</Link>
-                                <Link to={`/${controlador}/delete/${Object.values(value)[0]}`} className='btn btn-danger'>Eliminar</Link>
+                                <button className='btn btn-primary' onClick={() => evento(Object.values(value)[0])} data-bs-toggle="modal" data-bs-target={`#${controlador}Modal`}>Editar</button>
+                                <button className='btn btn-danger' onClick={() => evento(Object.values(value)[0], true)} data-bs-toggle="modal" data-bs-target={`#${controlador}Modal`}>Eliminar</button>
                             </td>
                             {Object.values(value).map((value2, index2) => {
                                 return <td key={index2}>{value2}</td>

@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from "react";
-import Menu from "./Menu";
 import axios from "axios"
-import { useNavigate, useParams } from "react-router-dom";
 
-function LibrosForm({del}){
+function LibrosForm({id, del, actualizar}){
+
+    if(del !== true)
+        del = false
 
     const[titulo, setTitulo] = useState("")
     const[descripcion, setDescripcion] = useState("")
@@ -12,26 +13,29 @@ function LibrosForm({del}){
     const[autorId, setAutorId] = useState()
     const[autores, setAutores] = useState()
 
-    const navigate = useNavigate()
-    const p = useParams()
-
     useEffect(() =>{
+        
         getAutores()
-        if(p.id != undefined)
+        if(id !== undefined)
             getLibro()
-        if(del != true)
-            del = false
-    }, [])
+        else{
+            setTitulo("")
+            setDescripcion("")
+            setEdicion("")
+            setIsbn("")
+            setAutorId("")
+            
+        }
+        
+    }, [id])
 
-    /*
-    useEffect(() =>{
-        console.log(autorId)
-    }, [autorId])
-*/
+    
+
+
 
     async function getLibro(){
         try{
-            let res = await axios("https://denny2023.azurewebsites.net/api/libros/"+p.id)
+            let res = await axios("https://denny2023.azurewebsites.net/api/libros/"+id)
             let data = res.data
 
             setTitulo(data.titulo)
@@ -43,7 +47,7 @@ function LibrosForm({del}){
         catch(error){
             alert(error)
             if(error.response.status === 404)
-                navigate("/libros")
+                document.querySelector("#btnCancelar").click()
         }
     }
 
@@ -58,9 +62,9 @@ function LibrosForm({del}){
             form.classList.add('was-validated')
         }
         else{
-            if(p.id === undefined)
+            if(id === undefined)
                 guardar()
-            else if(del != true)
+            else if(del !== true)
                 editar()
             else
                 eliminar()
@@ -69,26 +73,28 @@ function LibrosForm({del}){
 
     async function eliminar(){
         try{
-            let res = await axios.delete("https://denny2023.azurewebsites.net/api/libros?id="+p.id)
+            let res = await axios.delete("https://denny2023.azurewebsites.net/api/libros?id="+id)
             let data = await res.data
 
             alert(data.message)
 
-            if(data.status === 1)
-                navigate("/libros")
+            if(data.status === 1){
+                document.querySelector("#btnCancelar").click()
+                actualizar()
+            }
         }
         catch(error){
             alert(error)
 
             if(error.response.status === 404)
-                navigate("/libros")
+                document.querySelector("#btnCancelar").click()
         }
     }
 
     async function editar(){
         try{
             let libro = {
-                libroId: p.id,
+                libroId: id,
                 titulo: titulo,
                 descripcion: descripcion,
                 edicion: edicion,
@@ -100,8 +106,10 @@ function LibrosForm({del}){
 
             alert(data.message)
 
-            if(data.status === 1)
-                navigate("/libros")
+            if(data.status === 1){
+                document.querySelector("#btnCancelar").click()
+                actualizar()
+            }
         }
         catch(error){
             alert(error)
@@ -123,8 +131,11 @@ function LibrosForm({del}){
 
             alert(data.message)
 
-            if(data.status === 1)
-              navigate("/libros")
+            if(data.status === 1){
+                document.querySelector("#btnCancelar").click()
+                actualizar()
+            }
+                
         }
         catch(error){
             alert(error)
@@ -143,15 +154,21 @@ function LibrosForm({del}){
         }
     }
 
+    function cancelar(e){
+        e.preventDefault()
+        e.stopPropagation()
+        let form = document.querySelector("#formulario")
+        form.classList.remove('was-validated')
+    }
+
     return(
         <div>
-            <Menu />
             <form id="formulario" className="needs-validation" noValidate>
                 {
-                    p.id != undefined ?
+                    id !== undefined ?
                     <div className="form-group mb-3">
                         <label className="form-label">ID:</label>
-                        <input className="form-control" type="text" value={p.id} readOnly disabled />
+                        <input className="form-control" type="text" value={id} readOnly disabled />
                     </div>
                     :
                     ""
@@ -186,7 +203,7 @@ function LibrosForm({del}){
                     <select value={autorId} required disabled={del} onChange={(e) => setAutorId(e.target.value)} className="form-select">
                         <option value="">No seleccionado</option>
                         {
-                            autores != undefined ?
+                            autores !== undefined ?
                                 autores.map((value, index) =>{
                                     return <option value={value.autorId} key={value.autorId}>{value.nombre} {value.apellido}</option>
                                 })
@@ -197,9 +214,9 @@ function LibrosForm({del}){
                     <div className="valid-feedback">Correcto</div>
                     <div className="invalid-feedback">Seleccione un autor</div>
                 </div>
-                <div className="form-group">
-                    <input type="submit" onClick={(e) => enviar(e)} className={`btn btn-${p.id === undefined ? "success" : del === true ? "danger" : "primary"}`} value={p.id === undefined ? "Guardar" : del === true ? "Eliminar" : "Editar"} />
-                    <button className="btn btn-warning" onClick={() => navigate("/libros")}>Cancelar</button>
+                <div className='modal-footer form-group mb-3'>
+                    <input onClick={(e) => enviar(e)} type="submit" className={`btn btn-${id === undefined ? "success" : del===true ? "danger" : "primary"}`} value={id === undefined ? "Guardar" : del===true ? "Eliminar" : "Editar"} />
+                    <button id="btnCancelar" data-bs-dismiss="modal" onClick={(e) => cancelar(e)} className='btn btn-warning'>Cancelar</button>
                 </div>
             </form>
         </div>
